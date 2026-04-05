@@ -1,5 +1,6 @@
 appId: com.luke.youtubeaudioripper
 productName: YouTube Audio Ripper
+artifactName: YouTube-Audio-Ripper-Setup-${version}.${ext}
 directories:
   output: release
 files:
