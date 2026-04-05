@@ -41,8 +41,10 @@ After publication, the `Release Installer` GitHub Actions workflow will:
 1. Check out the repo with Git LFS objects.
 2. Install dependencies.
 3. Run `npm test`.
-4. Run `npm run dist` on Windows.
+4. Run `npm run dist -- --publish never` on Windows.
 5. Upload the generated installer assets to the release.
+
+The workflow intentionally disables `electron-builder` publishing in CI because release asset upload is handled by the separate GitHub Release action step.
 
 ## What To Download Or Share
 
