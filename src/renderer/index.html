@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Audio Ripper</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Milestone One</p>
+        <h1>Grab short MP3 clips without designing around full video downloads.</h1>
+        <p class="lede">
+          Paste a YouTube URL, choose an output folder, and optionally set a clip start and end time.
+        </p>
+      </section>
+
+      <section class="panel layout">
+        <form id="download-form" class="card form-card">
+          <div class="field wide">
+            <label for="url">YouTube URL</label>
+            <input id="url" name="url" type="url" placeholder="https://www.youtube.com/watch?v=..." required />
+          </div>
+
+          <div class="field wide output-row">
+            <label for="output-directory">Output folder</label>
+            <div class="inline-group">
+              <input id="output-directory" name="outputDirectory" type="text" placeholder="Choose a folder" required />
+              <button id="browse-button" class="secondary-button" type="button">Browse</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="start-time">Start time</label>
+            <input id="start-time" name="startTime" type="text" placeholder="00:01:32" />
+            <p class="hint">Optional. Use mm:ss or hh:mm:ss.</p>
+          </div>
+
+          <div class="field">
+            <label for="end-time">End time</label>
+            <input id="end-time" name="endTime" type="text" placeholder="00:01:37" />
+            <p class="hint">Optional. Must be later than start time.</p>
+          </div>
+
+          <div class="field format-lock">
+            <label>Output format</label>
+            <div class="format-pill">MP3 only</div>
+            <p class="hint">Locked for milestone one.</p>
+          </div>
+
+          <div class="actions wide">
+            <button class="primary-button" type="submit">Start download</button>
+            <button id="cancel-button" class="secondary-button" type="button" disabled>Cancel</button>
+          </div>
+        </form>
+
+        <aside class="card status-card">
+          <div class="status-header">
+            <p class="status-label">Job status</p>
+            <p id="status-text" class="status-text">Idle</p>
+          </div>
+
+          <div class="meter">
+            <div id="progress-bar" class="meter-fill"></div>
+          </div>
+
+          <dl class="status-grid">
+            <div>
+              <dt>Progress</dt>
+              <dd id="progress-value">0%</dd>
+            </div>
+            <div>
+              <dt>Speed</dt>
+              <dd id="speed-value">-</dd>
+            </div>
+            <div>
+              <dt>ETA</dt>
+              <dd id="eta-value">-</dd>
+            </div>
+            <div>
+              <dt>Output</dt>
+              <dd id="output-value">-</dd>
+            </div>
+          </dl>
+
+          <div class="log-block">
+            <p class="status-label">Latest output</p>
+            <pre id="log-output">Waiting for a download.</pre>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

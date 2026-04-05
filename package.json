@@ -1,0 +1,22 @@
+{
+  "name": "youtube-audio-ripper",
+  "productName": "YouTube Audio Ripper",
+  "version": "0.1.0",
+  "description": "Windows desktop app for downloading MP3 clips from YouTube with yt-dlp and ffmpeg.",
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "dist": "electron-builder --win nsis",
+    "test": "node --test tests",
+    "test:watch": "node --test --watch tests",
+    "smoke": "npm run smoke:tools && npm run smoke:start",
+    "smoke:start": "node scripts/smoke-start.js",
+    "smoke:tools": "node scripts/smoke-tools.js",
+    "smoke:clip": "node scripts/smoke-clip.js"
+  },
+  "devDependencies": {
+    "electron": "41.1.1",
+    "electron-builder": "^26.0.0"
+  }
+}
