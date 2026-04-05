@@ -1,6 +1,20 @@
 const { app } = require('electron');
 
-const GITHUB_PACKAGE_URL = 'https://raw.githubusercontent.com/lkbviking/Youtube-Audio-Ripper/main/package.json';
+const GITHUB_LATEST_RELEASE_URL = 'https://api.github.com/repos/lkbviking/Youtube-Audio-Ripper/releases/latest';
+
+function normalizeReleaseVersion(tagName) {
+  if (typeof tagName !== 'string') {
+    throw new Error('GitHub release did not contain a valid tag name.');
+  }
+
+  const trimmedTagName = tagName.trim();
+
+  if (!trimmedTagName) {
+    throw new Error('GitHub release did not contain a valid tag name.');
+  }
+
+  return trimmedTagName.replace(/^v/i, '');
+}
 
 function createVersionStatus({
   isPackaged,
@@ -52,9 +66,10 @@ function createVersionStatus({
   };
 }
 
-async function fetchGithubVersion(fetchImpl = fetch) {
-  const response = await fetchImpl(GITHUB_PACKAGE_URL, {
+async function fetchLatestReleaseVersion(fetchImpl = fetch) {
+  const response = await fetchImpl(GITHUB_LATEST_RELEASE_URL, {
     headers: {
+      Accept: 'application/vnd.github+json',
       'User-Agent': 'YouTube Audio Ripper'
     }
   });
@@ -65,11 +80,11 @@ async function fetchGithubVersion(fetchImpl = fetch) {
 
   const payload = await response.json();
 
-  if (!payload || typeof payload.version !== 'string' || !payload.version.trim()) {
-    throw new Error('GitHub package.json did not contain a valid version.');
+  if (!payload || typeof payload.tag_name !== 'string') {
+    throw new Error('GitHub latest release did not contain a valid tag name.');
   }
 
-  return payload.version.trim();
+  return normalizeReleaseVersion(payload.tag_name);
 }
 
 async function getVersionStatus(fetchImpl = fetch) {
@@ -83,7 +98,7 @@ async function getVersionStatus(fetchImpl = fetch) {
   }
 
   try {
-    const remoteVersion = await fetchGithubVersion(fetchImpl);
+    const remoteVersion = await fetchLatestReleaseVersion(fetchImpl);
 
     return createVersionStatus({
       isPackaged: true,
@@ -100,8 +115,7 @@ async function getVersionStatus(fetchImpl = fetch) {
 }
 
 module.exports = {
-  GITHUB_PACKAGE_URL,
   createVersionStatus,
-  fetchGithubVersion,
+  fetchLatestReleaseVersion,
   getVersionStatus
 };

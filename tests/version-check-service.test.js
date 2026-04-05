@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 
 const {
   createVersionStatus,
-  fetchGithubVersion
+  fetchLatestReleaseVersion
 } = require('../src/main/services/version-check-service');
 
 test('createVersionStatus returns an error status for development builds', () => {
@@ -16,7 +16,7 @@ test('createVersionStatus returns an error status for development builds', () =>
   assert.match(result.message, /development builds/i);
 });
 
-test('createVersionStatus returns success when packaged and versions match', () => {
+test('createVersionStatus returns success when packaged and versions match the latest release', () => {
   const result = createVersionStatus({
     isPackaged: true,
     localVersion: '0.1.0',
@@ -38,20 +38,31 @@ test('createVersionStatus returns an error when packaged versions do not match',
   assert.match(result.message, /does not match github version 0.2.0/i);
 });
 
-test('fetchGithubVersion returns the remote version from package.json', async () => {
-  const version = await fetchGithubVersion(async () => ({
+test('fetchLatestReleaseVersion returns the normalized version from the latest release tag', async () => {
+  const version = await fetchLatestReleaseVersion(async () => ({
     ok: true,
     async json() {
-      return { version: '1.2.3' };
+      return { tag_name: 'v1.2.3' };
     }
   }));
 
   assert.equal(version, '1.2.3');
 });
 
-test('fetchGithubVersion throws when the GitHub response is not ok', async () => {
+test('fetchLatestReleaseVersion accepts a tag name without the v prefix', async () => {
+  const version = await fetchLatestReleaseVersion(async () => ({
+    ok: true,
+    async json() {
+      return { tag_name: '1.2.4' };
+    }
+  }));
+
+  assert.equal(version, '1.2.4');
+});
+
+test('fetchLatestReleaseVersion throws when the GitHub response is not ok', async () => {
   await assert.rejects(
-    () => fetchGithubVersion(async () => ({ ok: false, status: 503 })),
+    () => fetchLatestReleaseVersion(async () => ({ ok: false, status: 503 })),
     /HTTP 503/
   );
 });
