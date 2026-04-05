@@ -1,4 +1,5 @@
-const { dialog, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
+const { dialog, BrowserWindow, ipcMain, shell } = require('electron');
 
 const { getConfig, setConfig } = require('./services/config-service');
 const { DownloadJob } = require('./services/download-job');
@@ -42,6 +43,22 @@ function registerIpcHandlers() {
   ipcMain.handle('app:getUpdateStatus', async () => getUpdateState());
 
   ipcMain.handle('app:applyUpdate', async () => applyAvailableUpdate());
+
+  ipcMain.handle('shell:openOutputFolder', async (_event, outputPath) => {
+    if (!outputPath || typeof outputPath !== 'string') {
+      return { opened: false, reason: 'No output path was provided.' };
+    }
+
+    try {
+      shell.showItemInFolder(path.normalize(outputPath));
+      return { opened: true };
+    } catch (error) {
+      return {
+        opened: false,
+        reason: error.message
+      };
+    }
+  });
 
   ipcMain.handle('download:start', async (_event, request) => {
     const job = new DownloadJob(request);

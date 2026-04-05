@@ -282,6 +282,18 @@ button:disabled {
   white-space: pre-wrap;
 }
 
+.status-actions {
+  margin-top: 18px;
+}
+
+.status-action-button {
+  width: 100%;
+}
+
+.status-action-hidden {
+  display: none;
+}
+
 .footer-note {
   margin-top: 28px;
   padding: 10px 4px 0;

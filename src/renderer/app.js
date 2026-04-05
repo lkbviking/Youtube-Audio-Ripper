@@ -6,6 +6,7 @@ const versionAlert = document.getElementById('version-alert');
 const versionAlertAction = document.getElementById('version-alert-action');
 const versionAlertText = document.getElementById('version-alert-text');
 const outputDirectoryInput = document.getElementById('output-directory');
+const openOutputButton = document.getElementById('open-output-button');
 const statusText = document.getElementById('status-text');
 const progressBar = document.getElementById('progress-bar');
 const progressValue = document.getElementById('progress-value');
@@ -15,6 +16,20 @@ const outputValue = document.getElementById('output-value');
 const logOutput = document.getElementById('log-output');
 
 let activeJobId = null;
+let latestOutputPath = null;
+
+function setOpenOutputAction(outputPath) {
+  latestOutputPath = outputPath || null;
+
+  if (latestOutputPath) {
+    openOutputButton.disabled = false;
+    openOutputButton.classList.remove('status-action-hidden');
+    return;
+  }
+
+  openOutputButton.disabled = true;
+  openOutputButton.classList.add('status-action-hidden');
+}
 
 function setUpdateAction(action, actionLabel) {
   if (action === 'download') {
@@ -123,6 +138,7 @@ form.addEventListener('submit', async (event) => {
   speedValue.textContent = '-';
   etaValue.textContent = '-';
   outputValue.textContent = '-';
+  setOpenOutputAction(null);
 
   try {
     const result = await window.youtubeAudioRipper.startDownload(request);
@@ -144,6 +160,18 @@ cancelButton.addEventListener('click', async () => {
   }
 
   await window.youtubeAudioRipper.cancelDownload(activeJobId);
+});
+
+openOutputButton.addEventListener('click', async () => {
+  if (!latestOutputPath) {
+    return;
+  }
+
+  const result = await window.youtubeAudioRipper.openOutputFolder(latestOutputPath);
+
+  if (!result.opened && result.reason) {
+    appendLog(`Unable to open output folder: ${result.reason}`);
+  }
 });
 
 versionAlertAction.addEventListener('click', async () => {
@@ -208,6 +236,9 @@ window.youtubeAudioRipper.onDownloadUpdate((payload) => {
 
     if (payload.status === 'completed') {
       setProgress(100);
+      setOpenOutputAction(payload.outputPath || latestOutputPath);
+    } else {
+      setOpenOutputAction(null);
     }
 
     activeJobId = null;
@@ -216,3 +247,4 @@ window.youtubeAudioRipper.onDownloadUpdate((payload) => {
 
 loadSavedConfig();
 loadUpdateStatus();
+setOpenOutputAction(null);

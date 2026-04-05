@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('youtubeAudioRipper', {
   pickOutputFolder: () => ipcRenderer.invoke('dialog:pickOutputFolder'),
   getUpdateStatus: () => ipcRenderer.invoke('app:getUpdateStatus'),
   applyUpdate: () => ipcRenderer.invoke('app:applyUpdate'),
+  openOutputFolder: (outputPath) => ipcRenderer.invoke('shell:openOutputFolder', outputPath),
   getConfig: () => ipcRenderer.invoke('config:get'),
   setConfig: (partialConfig) => ipcRenderer.invoke('config:set', partialConfig),
   startDownload: (request) => ipcRenderer.invoke('download:start', request),
