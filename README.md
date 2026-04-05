@@ -44,11 +44,13 @@ Use `npm run smoke:clip` for a slower end-to-end clip smoke test against a publi
 
 The `release` folder does not need to be manually deleted between `npm run dist` runs. electron-builder can rebuild into that output directory.
 
-## Version Check
+## Updates
 
-Packaged builds now check the installed app version against the latest GitHub Release tag on startup and show an in-app error banner if the versions do not match or cannot be verified.
+Packaged builds now check GitHub Releases for updates on startup.
 
-Development builds intentionally show the version-check error banner for now.
+If a newer release is available, the app shows an in-app message with an `Update now` button. Clicking that button starts the download, and once the update is ready the app installs it and restarts automatically.
+
+Development builds intentionally show that automatic updates are only available in installed builds.
 
 ## Releases
 

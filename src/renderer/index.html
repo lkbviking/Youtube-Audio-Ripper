@@ -9,8 +9,13 @@
   <body>
     <main class="shell">
       <section id="version-alert" class="version-alert version-alert-hidden" aria-live="polite">
-        <p class="version-alert-label">Version check</p>
-        <p id="version-alert-text" class="version-alert-text">Version check pending.</p>
+        <div class="version-alert-copy">
+          <p class="version-alert-label">Update status</p>
+          <p id="version-alert-text" class="version-alert-text">Checking for updates.</p>
+        </div>
+        <button id="version-alert-action" class="secondary-button version-alert-action version-alert-hidden" type="button">
+          Update now
+        </button>
       </section>
 
       <section class="hero">

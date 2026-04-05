@@ -13,6 +13,11 @@ extraResources:
 win:
   target:
     - nsis
+publish:
+  provider: github
+  owner: lkbviking
+  repo: Youtube-Audio-Ripper
+  releaseType: release
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true

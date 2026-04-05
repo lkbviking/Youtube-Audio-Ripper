@@ -2,7 +2,11 @@ const { dialog, BrowserWindow, ipcMain } = require('electron');
 
 const { getConfig, setConfig } = require('./services/config-service');
 const { DownloadJob } = require('./services/download-job');
-const { getVersionStatus } = require('./services/version-check-service');
+const {
+  applyAvailableUpdate,
+  getUpdateState,
+  initializeUpdateService
+} = require('./services/update-service');
 
 const activeJobs = new Map();
 
@@ -15,6 +19,10 @@ function sendToRenderer(channel, payload) {
 }
 
 function registerIpcHandlers() {
+  initializeUpdateService((payload) => {
+    sendToRenderer('app:updateStatus', payload);
+  });
+
   ipcMain.handle('dialog:pickOutputFolder', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory', 'createDirectory']
@@ -31,7 +39,9 @@ function registerIpcHandlers() {
 
   ipcMain.handle('config:set', async (_event, partialConfig) => setConfig(partialConfig));
 
-  ipcMain.handle('app:getVersionStatus', async () => getVersionStatus());
+  ipcMain.handle('app:getUpdateStatus', async () => getUpdateState());
+
+  ipcMain.handle('app:applyUpdate', async () => applyAvailableUpdate());
 
   ipcMain.handle('download:start', async (_event, request) => {
     const job = new DownloadJob(request);

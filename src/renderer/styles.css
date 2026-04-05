@@ -37,6 +37,10 @@ body {
 }
 
 .version-alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 18px;
   padding: 14px 18px;
   border: 1px solid rgba(141, 53, 24, 0.22);
@@ -55,6 +59,10 @@ body {
   font-family: 'Segoe UI', Tahoma, sans-serif;
 }
 
+.version-alert-copy {
+  min-width: 0;
+}
+
 .version-alert-label {
   margin-bottom: 4px;
   font-size: 0.76rem;
@@ -67,6 +75,10 @@ body {
   font-size: 0.94rem;
   font-weight: 700;
   color: var(--ink);
+}
+
+.version-alert-action {
+  flex: 0 0 auto;
 }
 
 .eyebrow,
@@ -282,6 +294,11 @@ button:disabled {
 @media (max-width: 920px) {
   .shell {
     padding: 26px 16px 20px;
+  }
+
+  .version-alert {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .layout {

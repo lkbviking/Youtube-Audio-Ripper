@@ -3,6 +3,7 @@ const browseButton = document.getElementById('browse-button');
 const cancelButton = document.getElementById('cancel-button');
 
 const versionAlert = document.getElementById('version-alert');
+const versionAlertAction = document.getElementById('version-alert-action');
 const versionAlertText = document.getElementById('version-alert-text');
 const outputDirectoryInput = document.getElementById('output-directory');
 const statusText = document.getElementById('status-text');
@@ -15,20 +16,46 @@ const logOutput = document.getElementById('log-output');
 
 let activeJobId = null;
 
-function showVersionAlert(message) {
-  versionAlertText.textContent = message;
-  versionAlert.classList.remove('version-alert-hidden');
+function setUpdateAction(action, actionLabel) {
+  if (action === 'download') {
+    versionAlertAction.textContent = actionLabel || 'Update now';
+    versionAlertAction.disabled = false;
+    versionAlertAction.classList.remove('version-alert-hidden');
+    return;
+  }
+
+  versionAlertAction.disabled = true;
+  versionAlertAction.classList.add('version-alert-hidden');
 }
 
-async function loadVersionStatus() {
-  try {
-    const versionStatus = await window.youtubeAudioRipper.getVersionStatus();
+function renderUpdateStatus(updateStatus) {
+  if (!updateStatus || !updateStatus.message) {
+    versionAlert.classList.add('version-alert-hidden');
+    setUpdateAction('none');
+    return;
+  }
 
-    if (!versionStatus.ok) {
-      showVersionAlert(versionStatus.message);
-    }
+  if (updateStatus.status === 'up-to-date') {
+    versionAlert.classList.add('version-alert-hidden');
+    setUpdateAction('none');
+    return;
+  }
+
+  versionAlertText.textContent = updateStatus.message;
+  versionAlert.classList.remove('version-alert-hidden');
+  setUpdateAction(updateStatus.action, updateStatus.actionLabel);
+}
+
+async function loadUpdateStatus() {
+  try {
+    const updateStatus = await window.youtubeAudioRipper.getUpdateStatus();
+    renderUpdateStatus(updateStatus);
   } catch (error) {
-    showVersionAlert(`Unable to check the installed version: ${error.message}`);
+    renderUpdateStatus({
+      status: 'error',
+      message: `Unable to check the installed version: ${error.message}`,
+      action: 'none'
+    });
   }
 }
 
@@ -119,6 +146,32 @@ cancelButton.addEventListener('click', async () => {
   await window.youtubeAudioRipper.cancelDownload(activeJobId);
 });
 
+versionAlertAction.addEventListener('click', async () => {
+  versionAlertAction.disabled = true;
+
+  try {
+    const result = await window.youtubeAudioRipper.applyUpdate();
+
+    if (!result.started && result.reason) {
+      renderUpdateStatus({
+        status: 'error',
+        message: `Unable to start the update: ${result.reason}`,
+        action: 'none'
+      });
+    }
+  } catch (error) {
+    renderUpdateStatus({
+      status: 'error',
+      message: `Unable to start the update: ${error.message}`,
+      action: 'none'
+    });
+  }
+});
+
+window.youtubeAudioRipper.onUpdateStatus((payload) => {
+  renderUpdateStatus(payload);
+});
+
 window.youtubeAudioRipper.onDownloadUpdate((payload) => {
   if (activeJobId && payload.jobId !== activeJobId) {
     return;
@@ -162,4 +215,4 @@ window.youtubeAudioRipper.onDownloadUpdate((payload) => {
 });
 
 loadSavedConfig();
-loadVersionStatus();
+loadUpdateStatus();
