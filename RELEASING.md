@@ -10,6 +10,8 @@ This keeps the repo history clean and avoids committing installer files into the
 
 ## Before You Release
 
+The repository automatically bumps the patch version on pushes to `main` when a commit did not already change the version number.
+
 1. Make sure the app version has been bumped in `package.json`.
 2. Make sure the bundled binaries are present in `bin/` and tracked through Git LFS.
 3. Push `main` to GitHub.
@@ -65,3 +67,4 @@ The main file to share is the setup `.exe` generated in the release assets.
 - Do not commit the built installer into the repo.
 - The `release/` folder is a build output, not a source artifact.
 - The release assets are the right place for installers and future auto-update files.
+- Automatic version bumping on `main` only works if GitHub Actions is allowed to push back to the repository.

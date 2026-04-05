@@ -1,0 +1,61 @@
+name: Auto Bump Version
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Detect explicit version change
+        id: detect-version-change
+        shell: bash
+        run: |
+          set -euo pipefail
+          BEFORE_SHA="${{ github.event.before }}"
+
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "version_changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          PREVIOUS_VERSION=$(git show "$BEFORE_SHA:package.json" | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+          if [ "$PREVIOUS_VERSION" = "$CURRENT_VERSION" ]; then
+            echo "version_changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "version_changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump patch version
+        if: steps.detect-version-change.outputs.version_changed == 'false'
+        run: npm version patch --no-git-tag-version
+
+      - name: Commit bumped version
+        if: steps.detect-version-change.outputs.version_changed == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "chore: bump version [skip ci]"
+          git push

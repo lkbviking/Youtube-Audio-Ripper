@@ -55,3 +55,5 @@ Development builds intentionally show the version-check error banner for now.
 Installer files should be published through GitHub Releases, not committed into the repository.
 
 See `RELEASING.md` for the minimal release workflow and checklist.
+
+The repository also includes an automatic patch-version bump workflow for pushes to `main` when the incoming commit did not already change the version number.
