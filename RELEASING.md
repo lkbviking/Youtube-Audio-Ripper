@@ -30,6 +30,10 @@ The repository automatically bumps the patch version on pushes to `main` when a 
 
 Example: `v0.1.1`
 
+The release tag must match `package.json` exactly after removing the leading `v`.
+
+Example: `v0.1.6` must match `"version": "0.1.6"`
+
 1. Target the `main` branch.
 2. Use the same version for the release title.
 
@@ -41,10 +45,11 @@ Example: `v0.1.1`
 After publication, the `Release Installer` GitHub Actions workflow will:
 
 1. Check out the repo with Git LFS objects.
-2. Install dependencies.
-3. Run `npm test`.
-4. Run `npm run dist -- --publish never` on Windows.
-5. Upload the generated installer assets to the release.
+2. Fail immediately if the release tag does not match `package.json`.
+3. Install dependencies.
+4. Run `npm test`.
+5. Run `npm run dist -- --publish never` on Windows.
+6. Upload the generated installer assets to the release.
 
 The workflow intentionally disables `electron-builder` publishing in CI because release asset upload is handled by the separate GitHub Release action step.
 

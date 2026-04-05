@@ -18,6 +18,22 @@ jobs:
         with:
           lfs: true
 
+      - name: Validate release tag matches package version
+        shell: bash
+        run: |
+          set -euo pipefail
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          NORMALIZED_TAG="${RELEASE_TAG#v}"
+
+          echo "package.json version: $PACKAGE_VERSION"
+          echo "release tag: $RELEASE_TAG"
+
+          if [ "$NORMALIZED_TAG" != "$PACKAGE_VERSION" ]; then
+            echo "Release tag $RELEASE_TAG does not match package.json version $PACKAGE_VERSION" >&2
+            exit 1
+          fi
+
       - name: Pull Git LFS objects
         run: git lfs pull
 
