@@ -1,6 +1,0 @@
-1. auto-check for updates
-    a. will also check for required dependencies and prompt user to install them if not found (or install them automatically if user agrees)
-2. select start and end time for segment of youtube video to download
-3. windows installer
-4. saves default file save location
-    a. allows user to override file save location when downloading

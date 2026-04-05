@@ -49,3 +49,9 @@ The `release` folder does not need to be manually deleted between `npm run dist`
 Packaged builds now check the installed app version against the GitHub `main` branch `package.json` version on startup and show an in-app error banner if the versions do not match or cannot be verified.
 
 Development builds intentionally show the version-check error banner for now.
+
+## Releases
+
+Installer files should be published through GitHub Releases, not committed into the repository.
+
+See `RELEASING.md` for the minimal release workflow and checklist.
