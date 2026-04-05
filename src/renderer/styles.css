@@ -81,18 +81,9 @@ body {
   flex: 0 0 auto;
 }
 
-.eyebrow,
 .status-label,
 .hint {
   font-family: 'Segoe UI', Tahoma, sans-serif;
-}
-
-.eyebrow {
-  margin: 0 0 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.18em;
-  font-size: 0.78rem;
-  color: var(--accent-dark);
 }
 
 .hero h1 {
@@ -289,6 +280,19 @@ button:disabled {
   font-family: Consolas, 'Courier New', monospace;
   font-size: 0.86rem;
   white-space: pre-wrap;
+}
+
+.footer-note {
+  margin-top: 28px;
+  padding: 10px 4px 0;
+  text-align: center;
+}
+
+.footer-note p {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 @media (max-width: 920px) {
