@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('youtubeAudioRipper', {
   pickOutputFolder: () => ipcRenderer.invoke('dialog:pickOutputFolder'),
+  getVersionStatus: () => ipcRenderer.invoke('app:getVersionStatus'),
   getConfig: () => ipcRenderer.invoke('config:get'),
   setConfig: (partialConfig) => ipcRenderer.invoke('config:set', partialConfig),
   startDownload: (request) => ipcRenderer.invoke('download:start', request),

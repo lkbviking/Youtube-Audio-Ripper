@@ -43,3 +43,9 @@ Use `npm run smoke` for quick local smoke coverage. It checks that the bundled t
 Use `npm run smoke:clip` for a slower end-to-end clip smoke test against a public YouTube video. This depends on network access and the external video still being available.
 
 The `release` folder does not need to be manually deleted between `npm run dist` runs. electron-builder can rebuild into that output directory.
+
+## Version Check
+
+Packaged builds now check the installed app version against the GitHub `main` branch `package.json` version on startup and show an in-app error banner if the versions do not match or cannot be verified.
+
+Development builds intentionally show the version-check error banner for now.

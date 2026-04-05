@@ -2,6 +2,7 @@ const { dialog, BrowserWindow, ipcMain } = require('electron');
 
 const { getConfig, setConfig } = require('./services/config-service');
 const { DownloadJob } = require('./services/download-job');
+const { getVersionStatus } = require('./services/version-check-service');
 
 const activeJobs = new Map();
 
@@ -29,6 +30,8 @@ function registerIpcHandlers() {
   ipcMain.handle('config:get', async () => getConfig());
 
   ipcMain.handle('config:set', async (_event, partialConfig) => setConfig(partialConfig));
+
+  ipcMain.handle('app:getVersionStatus', async () => getVersionStatus());
 
   ipcMain.handle('download:start', async (_event, request) => {
     const job = new DownloadJob(request);

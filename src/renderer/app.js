@@ -2,6 +2,8 @@ const form = document.getElementById('download-form');
 const browseButton = document.getElementById('browse-button');
 const cancelButton = document.getElementById('cancel-button');
 
+const versionAlert = document.getElementById('version-alert');
+const versionAlertText = document.getElementById('version-alert-text');
 const outputDirectoryInput = document.getElementById('output-directory');
 const statusText = document.getElementById('status-text');
 const progressBar = document.getElementById('progress-bar');
@@ -12,6 +14,23 @@ const outputValue = document.getElementById('output-value');
 const logOutput = document.getElementById('log-output');
 
 let activeJobId = null;
+
+function showVersionAlert(message) {
+  versionAlertText.textContent = message;
+  versionAlert.classList.remove('version-alert-hidden');
+}
+
+async function loadVersionStatus() {
+  try {
+    const versionStatus = await window.youtubeAudioRipper.getVersionStatus();
+
+    if (!versionStatus.ok) {
+      showVersionAlert(versionStatus.message);
+    }
+  } catch (error) {
+    showVersionAlert(`Unable to check the installed version: ${error.message}`);
+  }
+}
 
 function setStatus(status) {
   statusText.textContent = status;
@@ -143,3 +162,4 @@ window.youtubeAudioRipper.onDownloadUpdate((payload) => {
 });
 
 loadSavedConfig();
+loadVersionStatus();

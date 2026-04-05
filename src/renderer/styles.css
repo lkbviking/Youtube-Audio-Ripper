@@ -36,6 +36,39 @@ body {
   margin-bottom: 28px;
 }
 
+.version-alert {
+  margin-bottom: 18px;
+  padding: 14px 18px;
+  border: 1px solid rgba(141, 53, 24, 0.22);
+  border-radius: 20px;
+  background: rgba(189, 79, 44, 0.12);
+  box-shadow: var(--shadow);
+}
+
+.version-alert-hidden {
+  display: none;
+}
+
+.version-alert-label,
+.version-alert-text {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+}
+
+.version-alert-label {
+  margin-bottom: 4px;
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-dark);
+}
+
+.version-alert-text {
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
 .eyebrow,
 .status-label,
 .hint {
