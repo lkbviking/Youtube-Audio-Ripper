@@ -1,7 +1,7 @@
 {
   "name": "youtube-audio-ripper",
   "productName": "YouTube Audio Ripper",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Windows desktop app for downloading MP3 clips from YouTube with yt-dlp and ffmpeg.",
   "repository": {
     "type": "git",
