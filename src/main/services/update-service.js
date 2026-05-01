@@ -7,6 +7,7 @@ const {
   createInstallingUpdateState,
   createUpdateAvailableState,
   createUpdateErrorState,
+  normalizeUpdateErrorMessage,
   createUpdateState,
   createUpToDateState
 } = require('./update-state');
@@ -120,9 +121,10 @@ async function applyAvailableUpdate() {
     return { started: true };
   } catch (error) {
     setUpdateState(createUpdateErrorState(getLocalVersion(), error.message));
+    const normalizedReason = normalizeUpdateErrorMessage(error.message);
     return {
       started: false,
-      reason: error.message
+      reason: normalizedReason
     };
   }
 }

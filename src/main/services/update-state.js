@@ -11,6 +11,21 @@ function createUpdateState(overrides = {}) {
   };
 }
 
+function normalizeUpdateErrorMessage(errorMessage) {
+  const message = typeof errorMessage === 'string'
+    ? errorMessage.trim()
+    : String(errorMessage || '').trim();
+
+  if (
+    /Cannot find latest\.yml in the latest release artifacts/i.test(message)
+    || (/latest\.yml/i.test(message) && /\b404\b/.test(message))
+  ) {
+    return 'A new release was found, but the installer is still not attached to the GitHub release yet. Wait a few minutes and try again.';
+  }
+
+  return message || 'An unexpected update error occurred.';
+}
+
 function createDevelopmentUpdateState(localVersion) {
   return createUpdateState({
     status: 'unavailable',
@@ -56,7 +71,7 @@ function createUpdateErrorState(localVersion, errorMessage) {
   return createUpdateState({
     status: 'error',
     localVersion,
-    message: `Unable to check or install updates: ${errorMessage}`,
+    message: `Unable to check or install updates: ${normalizeUpdateErrorMessage(errorMessage)}`,
     action: 'none'
   });
 }
@@ -75,6 +90,7 @@ module.exports = {
   createDevelopmentUpdateState,
   createDownloadingUpdateState,
   createInstallingUpdateState,
+  normalizeUpdateErrorMessage,
   createUpdateAvailableState,
   createUpdateErrorState,
   createUpdateState,

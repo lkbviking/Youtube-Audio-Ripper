@@ -5,6 +5,7 @@ const {
   createDevelopmentUpdateState,
   createDownloadingUpdateState,
   createInstallingUpdateState,
+  normalizeUpdateErrorMessage,
   createUpdateAvailableState,
   createUpdateErrorState,
   createUpToDateState
@@ -47,6 +48,21 @@ test('createUpdateErrorState produces an error status', () => {
 
   assert.equal(result.status, 'error');
   assert.match(result.message, /network failed/i);
+});
+
+test('normalizeUpdateErrorMessage simplifies missing latest.yml release artifact errors', () => {
+  const result = normalizeUpdateErrorMessage('Cannot find latest.yml in the latest release artifacts (https://github.com/example/releases/download/v1.0.2/latest.yml): HttpError: 404');
+
+  assert.match(result, /wait a few minutes and try again/i);
+  assert.match(result, /installer is still not attached/i);
+});
+
+test('createUpdateErrorState uses the simplified release artifact message', () => {
+  const result = createUpdateErrorState('0.1.6', 'Cannot find latest.yml in the latest release artifacts (https://github.com/example/releases/download/v1.0.2/latest.yml): HttpError: 404');
+
+  assert.equal(result.status, 'error');
+  assert.match(result.message, /wait a few minutes and try again/i);
+  assert.doesNotMatch(result.message, /HttpError/i);
 });
 
 test('createUpToDateState hides update actions when already current', () => {
