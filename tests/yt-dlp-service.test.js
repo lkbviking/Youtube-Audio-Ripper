@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 
 const {
   createClipPlan,
+  isPlaylistUrl,
   validateDownloadRequest
 } = require('../src/main/services/yt-dlp-service');
 
@@ -32,6 +33,31 @@ test('validateDownloadRequest rejects one-sided clip ranges', () => {
   }, /both start and end times are required/i);
 });
 
+test('validateDownloadRequest treats a zero start time without an end time as blank', () => {
+  const result = validateDownloadRequest({
+    url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
+    outputDirectory: 'D:\\Temp',
+    startTime: '00:00',
+    endTime: ''
+  });
+
+  assert.equal(result.startTime, '');
+  assert.equal(result.endTime, '');
+});
+
+test('createClipPlan supports clips that begin at zero', () => {
+  const result = createClipPlan({
+    url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
+    outputDirectory: 'D:\\Temp',
+    startTime: '00:00',
+    endTime: '00:05'
+  });
+
+  assert.equal(result.requestedStartSeconds, 0);
+  assert.equal(result.paddedStartSeconds, 0);
+  assert.equal(result.trimDurationSeconds, 5);
+});
+
 test('validateDownloadRequest rejects end times before start times', () => {
   assert.throws(() => {
     validateDownloadRequest({
@@ -41,4 +67,20 @@ test('validateDownloadRequest rejects end times before start times', () => {
       endTime: '00:35'
     });
   }, /end time must be later than start time/i);
+});
+
+test('isPlaylistUrl detects playlist query parameters', () => {
+  assert.equal(isPlaylistUrl('https://www.youtube.com/watch?v=jNQXAC9IVRw&list=PL123'), true);
+  assert.equal(isPlaylistUrl('https://www.youtube.com/watch?v=jNQXAC9IVRw'), false);
+});
+
+test('validateDownloadRequest rejects playlist URLs', () => {
+  assert.throws(() => {
+    validateDownloadRequest({
+      url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw&list=PL123',
+      outputDirectory: 'D:\\Temp',
+      startTime: '',
+      endTime: ''
+    });
+  }, /playlist urls are not supported/i);
 });

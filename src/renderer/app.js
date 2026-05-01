@@ -1,6 +1,9 @@
 const form = document.getElementById('download-form');
 const browseButton = document.getElementById('browse-button');
 const cancelButton = document.getElementById('cancel-button');
+const startDownloadButton = document.getElementById('start-download-button');
+const urlInput = document.getElementById('url');
+const urlWarning = document.getElementById('url-warning');
 
 const versionAlert = document.getElementById('version-alert');
 const versionAlertAction = document.getElementById('version-alert-action');
@@ -17,6 +20,37 @@ const logOutput = document.getElementById('log-output');
 
 let activeJobId = null;
 let latestOutputPath = null;
+
+function isPlaylistUrl(url) {
+  const trimmed = String(url || '').trim();
+
+  if (!trimmed) {
+    return false;
+  }
+
+  try {
+    return new URL(trimmed).searchParams.has('list');
+  } catch {
+    return /(?:\?|&)list=/.test(trimmed);
+  }
+}
+
+function getPlaylistWarning(url) {
+  if (!isPlaylistUrl(url)) {
+    return '';
+  }
+
+  return 'Playlist URLs are not supported yet. Please paste a single-video YouTube link.';
+}
+
+function updateDownloadAvailability() {
+  const warning = getPlaylistWarning(urlInput.value);
+  const isBlocked = Boolean(warning);
+
+  urlInput.setCustomValidity(warning);
+  urlWarning.classList.toggle('warning-hidden', !isBlocked);
+  startDownloadButton.disabled = isBlocked;
+}
 
 function setOpenOutputAction(outputPath) {
   latestOutputPath = outputPath || null;
@@ -125,12 +159,23 @@ form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const formData = new FormData(form);
+  const startTime = String(formData.get('startTime') || '').trim();
+  const endTime = String(formData.get('endTime') || '').trim();
   const request = {
     url: String(formData.get('url') || '').trim(),
     outputDirectory: String(formData.get('outputDirectory') || '').trim(),
-    startTime: String(formData.get('startTime') || '').trim(),
-    endTime: String(formData.get('endTime') || '').trim()
+    startTime,
+    endTime
   };
+  const playlistWarning = getPlaylistWarning(request.url);
+
+  if (playlistWarning) {
+    updateDownloadAvailability();
+    setStatus('Blocked');
+    appendLog(playlistWarning);
+    form.reportValidity();
+    return;
+  }
 
   resetLog();
   setStatus('Starting');
@@ -152,6 +197,10 @@ form.addEventListener('submit', async (event) => {
     setStatus('Failed');
     appendLog(error.message);
   }
+});
+
+urlInput.addEventListener('input', () => {
+  updateDownloadAvailability();
 });
 
 cancelButton.addEventListener('click', async () => {
@@ -248,3 +297,4 @@ window.youtubeAudioRipper.onDownloadUpdate((payload) => {
 loadSavedConfig();
 loadUpdateStatus();
 setOpenOutputAction(null);
+updateDownloadAvailability();

@@ -27,6 +27,30 @@ function secondsToTimecode(totalSeconds) {
     .join(':');
 }
 
+function isZeroTimecode(timecode) {
+  const trimmed = typeof timecode === 'string' ? timecode.trim() : '';
+
+  if (!trimmed || !TIME_PATTERN.test(trimmed)) {
+    return false;
+  }
+
+  return trimmed.split(':').every((part) => Number(part) === 0);
+}
+
+function isPlaylistUrl(url) {
+  const trimmed = typeof url === 'string' ? url.trim() : '';
+
+  if (!trimmed) {
+    return false;
+  }
+
+  try {
+    return new URL(trimmed).searchParams.has('list');
+  } catch {
+    return /(?:\?|&)list=/.test(trimmed);
+  }
+}
+
 function hasClipRange(request) {
   return Boolean((request.startTime || '').trim() && (request.endTime || '').trim());
 }
@@ -36,16 +60,24 @@ function validateDownloadRequest(request) {
     throw new Error('Missing download request payload.');
   }
 
-  if (!request.url || !/^https?:\/\//i.test(request.url)) {
+  const url = typeof request.url === 'string' ? request.url.trim() : '';
+  const outputDirectory = typeof request.outputDirectory === 'string'
+    ? request.outputDirectory.trim()
+    : '';
+  let startTime = typeof request.startTime === 'string' ? request.startTime.trim() : '';
+  const endTime = typeof request.endTime === 'string' ? request.endTime.trim() : '';
+
+  if (!url || !/^https?:\/\//i.test(url)) {
     throw new Error('A valid YouTube URL is required.');
   }
 
-  if (!request.outputDirectory) {
-    throw new Error('An output folder is required.');
+  if (isPlaylistUrl(url)) {
+    throw new Error('Playlist URLs are not supported. Please use a single-video YouTube URL.');
   }
 
-  const startTime = (request.startTime || '').trim();
-  const endTime = (request.endTime || '').trim();
+  if (!outputDirectory) {
+    throw new Error('An output folder is required.');
+  }
 
   if (startTime && !TIME_PATTERN.test(startTime)) {
     throw new Error('Start time must use mm:ss or hh:mm:ss.');
@@ -55,6 +87,10 @@ function validateDownloadRequest(request) {
     throw new Error('End time must use mm:ss or hh:mm:ss.');
   }
 
+  if (startTime && !endTime && isZeroTimecode(startTime)) {
+    startTime = '';
+  }
+
   if ((startTime && !endTime) || (!startTime && endTime)) {
     throw new Error('Both start and end times are required for clip downloads.');
   }
@@ -62,17 +98,23 @@ function validateDownloadRequest(request) {
   if (startTime && endTime && timecodeToSeconds(endTime) <= timecodeToSeconds(startTime)) {
     throw new Error('End time must be later than start time.');
   }
+
+  return {
+    ...request,
+    url,
+    outputDirectory,
+    startTime,
+    endTime
+  };
 }
 
-function createClipPlan(request) {
-  validateDownloadRequest(request);
-
+function createValidatedClipPlan(request) {
   if (!hasClipRange(request)) {
     throw new Error('Clip planning requires both start and end times.');
   }
 
-  const requestedStartSeconds = timecodeToSeconds(request.startTime.trim());
-  const requestedEndSeconds = timecodeToSeconds(request.endTime.trim());
+  const requestedStartSeconds = timecodeToSeconds(request.startTime);
+  const requestedEndSeconds = timecodeToSeconds(request.endTime);
   const paddedStartSeconds = Math.max(0, requestedStartSeconds - PRECISE_CLIP_PRE_PADDING_SECONDS);
   const paddedEndSeconds = requestedEndSeconds + PRECISE_CLIP_POST_PADDING_SECONDS;
 
@@ -88,8 +130,13 @@ function createClipPlan(request) {
   };
 }
 
+function createClipPlan(request) {
+  const validatedRequest = validateDownloadRequest(request);
+  return createValidatedClipPlan(validatedRequest);
+}
+
 function buildDownloadArguments(request) {
-  validateDownloadRequest(request);
+  const validatedRequest = validateDownloadRequest(request);
 
   const { binDirectory } = assertToolsExist();
   const args = [
@@ -101,7 +148,7 @@ function buildDownloadArguments(request) {
     '--ffmpeg-location',
     binDirectory,
     '--paths',
-    `home:${request.outputDirectory}`,
+    `home:${validatedRequest.outputDirectory}`,
     '--windows-filenames',
     '--newline',
     '--progress',
@@ -110,17 +157,18 @@ function buildDownloadArguments(request) {
     'after_move:filepath'
   ];
 
-  if (request.startTime && request.endTime) {
-    args.push('--download-sections', `*${request.startTime}-${request.endTime}`);
+  if (validatedRequest.startTime && validatedRequest.endTime) {
+    args.push('--download-sections', `*${validatedRequest.startTime}-${validatedRequest.endTime}`);
   }
 
-  args.push(request.url);
+  args.push(validatedRequest.url);
 
   return args;
 }
 
 function buildClipDownloadArguments(request, tempDirectory) {
-  const clipPlan = createClipPlan(request);
+  const validatedRequest = validateDownloadRequest(request);
+  const clipPlan = createValidatedClipPlan(validatedRequest);
   const { binDirectory } = assertToolsExist();
 
   const args = [
@@ -140,7 +188,7 @@ function buildClipDownloadArguments(request, tempDirectory) {
     `*${clipPlan.paddedStartTimecode}-${clipPlan.paddedEndTimecode}`
   ];
 
-  args.push(request.url);
+  args.push(validatedRequest.url);
 
   return {
     args,
@@ -153,6 +201,7 @@ module.exports = {
   buildClipDownloadArguments,
   createClipPlan,
   hasClipRange,
+  isPlaylistUrl,
   timecodeToSeconds,
   validateDownloadRequest
 };

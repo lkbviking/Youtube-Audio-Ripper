@@ -30,6 +30,9 @@
           <div class="field wide">
             <label for="url">YouTube URL</label>
             <input id="url" name="url" type="url" placeholder="https://www.youtube.com/watch?v=..." required />
+            <p id="url-warning" class="hint warning-text warning-hidden" role="alert">
+              Playlist URLs are not supported yet. Please paste a single-video YouTube link.
+            </p>
           </div>
 
           <div class="field wide output-row">
@@ -59,7 +62,7 @@
           </div>
 
           <div class="actions wide">
-            <button class="primary-button" type="submit">Start download</button>
+            <button id="start-download-button" class="primary-button" type="submit">Start download</button>
             <button id="cancel-button" class="secondary-button" type="button" disabled>Cancel</button>
           </div>
         </form>

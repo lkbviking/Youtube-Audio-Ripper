@@ -157,6 +157,15 @@ body {
   color: var(--muted);
 }
 
+.warning-text {
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
+.warning-hidden {
+  display: none;
+}
+
 .inline-group {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
