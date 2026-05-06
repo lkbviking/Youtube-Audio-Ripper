@@ -58,6 +58,17 @@ test('createClipPlan supports clips that begin at zero', () => {
   assert.equal(result.trimDurationSeconds, 5);
 });
 
+test('validateDownloadRequest normalizes youtu.be share URLs for clip requests', () => {
+  const result = validateDownloadRequest({
+    url: 'https://youtu.be/aVzecmgFPq0?si=S23M0XTKqtECSCRI',
+    outputDirectory: 'D:\\Temp',
+    startTime: '00:05',
+    endTime: '00:10'
+  });
+
+  assert.equal(result.url, 'https://www.youtube.com/watch?v=aVzecmgFPq0');
+});
+
 test('validateDownloadRequest rejects end times before start times', () => {
   assert.throws(() => {
     validateDownloadRequest({

@@ -37,6 +37,47 @@ function isZeroTimecode(timecode) {
   return trimmed.split(':').every((part) => Number(part) === 0);
 }
 
+function normalizeYouTubeUrl(url) {
+  const trimmed = typeof url === 'string' ? url.trim() : '';
+
+  if (!trimmed) {
+    return '';
+  }
+
+  try {
+    const parsedUrl = new URL(trimmed);
+    const hostname = parsedUrl.hostname.toLowerCase().replace(/^www\./, '');
+
+    if (hostname === 'youtu.be') {
+      const [videoId] = parsedUrl.pathname.split('/').filter(Boolean);
+
+      if (!videoId) {
+        return trimmed;
+      }
+
+      const normalizedUrl = new URL('https://www.youtube.com/watch');
+      normalizedUrl.searchParams.set('v', videoId);
+
+      const playlistId = parsedUrl.searchParams.get('list');
+
+      if (playlistId) {
+        normalizedUrl.searchParams.set('list', playlistId);
+      }
+
+      return normalizedUrl.toString();
+    }
+
+    if (hostname === 'youtube.com' || hostname.endsWith('.youtube.com')) {
+      parsedUrl.searchParams.delete('si');
+      return parsedUrl.toString();
+    }
+  } catch {
+    return trimmed;
+  }
+
+  return trimmed;
+}
+
 function isPlaylistUrl(url) {
   const trimmed = typeof url === 'string' ? url.trim() : '';
 
@@ -60,7 +101,7 @@ function validateDownloadRequest(request) {
     throw new Error('Missing download request payload.');
   }
 
-  const url = typeof request.url === 'string' ? request.url.trim() : '';
+  const url = normalizeYouTubeUrl(request.url);
   const outputDirectory = typeof request.outputDirectory === 'string'
     ? request.outputDirectory.trim()
     : '';
