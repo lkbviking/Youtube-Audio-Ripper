@@ -96,6 +96,14 @@ function hasClipRange(request) {
   return Boolean((request.startTime || '').trim() && (request.endTime || '').trim());
 }
 
+function createDenoRuntimeOption(denoPath) {
+  if (typeof denoPath !== 'string' || !denoPath.trim()) {
+    throw new Error('A bundled Deno JavaScript runtime is required for YouTube downloads.');
+  }
+
+  return `deno:${denoPath}`;
+}
+
 function validateDownloadRequest(request) {
   if (!request || typeof request !== 'object') {
     throw new Error('Missing download request payload.');
@@ -176,10 +184,10 @@ function createClipPlan(request) {
   return createValidatedClipPlan(validatedRequest);
 }
 
-function buildDownloadArguments(request) {
+function buildDownloadArguments(request, toolPaths = assertToolsExist()) {
   const validatedRequest = validateDownloadRequest(request);
 
-  const { binDirectory } = assertToolsExist();
+  const { binDirectory, denoPath } = toolPaths;
   const args = [
     '-f',
     'ba/bestaudio',
@@ -188,6 +196,8 @@ function buildDownloadArguments(request) {
     'mp3',
     '--ffmpeg-location',
     binDirectory,
+    '--js-runtimes',
+    createDenoRuntimeOption(denoPath),
     '--paths',
     `home:${validatedRequest.outputDirectory}`,
     '--windows-filenames',
@@ -207,16 +217,18 @@ function buildDownloadArguments(request) {
   return args;
 }
 
-function buildClipDownloadArguments(request, tempDirectory) {
+function buildClipDownloadArguments(request, tempDirectory, toolPaths = assertToolsExist()) {
   const validatedRequest = validateDownloadRequest(request);
   const clipPlan = createValidatedClipPlan(validatedRequest);
-  const { binDirectory } = assertToolsExist();
+  const { binDirectory, denoPath } = toolPaths;
 
   const args = [
     '-f',
     'ba/bestaudio',
     '--ffmpeg-location',
     binDirectory,
+    '--js-runtimes',
+    createDenoRuntimeOption(denoPath),
     '--paths',
     `home:${tempDirectory}`,
     '--windows-filenames',

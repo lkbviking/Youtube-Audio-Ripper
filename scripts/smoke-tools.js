@@ -16,6 +16,10 @@ const tools = [
   {
     name: 'ffprobe.exe',
     versionArgs: ['-version']
+  },
+  {
+    name: 'deno.exe',
+    versionArgs: ['--version']
   }
 ];
 

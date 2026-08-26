@@ -2,10 +2,17 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
+  buildClipDownloadArguments,
+  buildDownloadArguments,
   createClipPlan,
   isPlaylistUrl,
   validateDownloadRequest
 } = require('../src/main/services/yt-dlp-service');
+
+const toolPaths = {
+  binDirectory: 'D:\\Tools',
+  denoPath: 'D:\\Tools\\deno.exe'
+};
 
 test('createClipPlan builds the expected padded clip window', () => {
   const result = createClipPlan({
@@ -94,4 +101,32 @@ test('validateDownloadRequest rejects playlist URLs', () => {
       endTime: ''
     });
   }, /playlist urls are not supported/i);
+});
+
+test('buildDownloadArguments enables the bundled Deno runtime for YouTube extraction', () => {
+  const args = buildDownloadArguments({
+    url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
+    outputDirectory: 'D:\\Temp',
+    startTime: '',
+    endTime: ''
+  }, toolPaths);
+
+  const runtimeIndex = args.indexOf('--js-runtimes');
+
+  assert.notEqual(runtimeIndex, -1);
+  assert.equal(args[runtimeIndex + 1], 'deno:D:\\Tools\\deno.exe');
+});
+
+test('buildClipDownloadArguments enables the bundled Deno runtime for section downloads', () => {
+  const { args } = buildClipDownloadArguments({
+    url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw',
+    outputDirectory: 'D:\\Temp',
+    startTime: '00:05',
+    endTime: '00:10'
+  }, 'D:\\Temp\\source', toolPaths);
+
+  const runtimeIndex = args.indexOf('--js-runtimes');
+
+  assert.notEqual(runtimeIndex, -1);
+  assert.equal(args[runtimeIndex + 1], 'deno:D:\\Tools\\deno.exe');
 });

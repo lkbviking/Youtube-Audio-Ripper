@@ -17,7 +17,8 @@ function resolveToolPaths() {
     binDirectory,
     ytDlpPath: path.join(binDirectory, 'yt-dlp.exe'),
     ffmpegPath: path.join(binDirectory, 'ffmpeg.exe'),
-    ffprobePath: path.join(binDirectory, 'ffprobe.exe')
+    ffprobePath: path.join(binDirectory, 'ffprobe.exe'),
+    denoPath: path.join(binDirectory, 'deno.exe')
   };
 }
 

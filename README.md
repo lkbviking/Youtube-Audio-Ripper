@@ -23,6 +23,10 @@ Place these files in `bin/` before trying the app:
 - `yt-dlp.exe`
 - `ffmpeg.exe`
 - `ffprobe.exe`
+- `deno.exe`
+
+`deno.exe` is the bundled JavaScript runtime used by current yt-dlp releases to
+solve YouTube's extraction challenges. Keep it beside `yt-dlp.exe`.
 
 ## Scripts
 
@@ -38,7 +42,7 @@ Place these files in `bin/` before trying the app:
 
 Use `npm test` for fast automated regression checks. This runs native Node tests against the pure clip-planning and output-validation helpers.
 
-Use `npm run smoke` for quick local smoke coverage. It checks that the bundled tools run and that Electron can launch and exit cleanly.
+Use `npm run smoke` for quick local smoke coverage. It checks that the bundled tools, including Deno, run and that Electron can launch and exit cleanly.
 
 Use `npm run smoke:clip` for a slower end-to-end clip smoke test against a public YouTube video. This depends on network access and the external video still being available.
 

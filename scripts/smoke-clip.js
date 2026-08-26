@@ -8,7 +8,10 @@ const binDirectory = path.join(projectRoot, 'bin');
 const ytDlpPath = path.join(binDirectory, 'yt-dlp.exe');
 const ffmpegPath = path.join(binDirectory, 'ffmpeg.exe');
 const ffprobePath = path.join(binDirectory, 'ffprobe.exe');
+const denoPath = path.join(binDirectory, 'deno.exe');
 const tempDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'youtube-audio-ripper-smoke-'));
+const smokeVideoUrl = 'https://www.youtube.com/watch?v=vxoRDwIGnjQ';
+const expectedDurationSeconds = 2;
 
 function runOrThrow(command, args) {
   const result = spawnSync(command, args, {
@@ -26,7 +29,7 @@ function runOrThrow(command, args) {
 try {
   runOrThrow(ytDlpPath, [
     '--js-runtimes',
-    `node:${process.execPath}`,
+    `deno:${denoPath}`,
     '-f',
     'ba/bestaudio',
     '--ffmpeg-location',
@@ -38,8 +41,8 @@ try {
     '--print',
     'after_move:filepath',
     '--download-sections',
-    '*00:00:00-00:00:15',
-    'https://www.youtube.com/watch?v=jNQXAC9IVRw'
+    '*00:00:22-00:00:26',
+    smokeVideoUrl
   ]);
 
   const sourcePath = fs.readdirSync(tempDirectory)
@@ -58,9 +61,9 @@ try {
     '-i',
     sourcePath,
     '-ss',
-    '5',
+    '1',
     '-t',
-    '5',
+    String(expectedDurationSeconds),
     '-vn',
     '-acodec',
     'libmp3lame',
@@ -80,8 +83,8 @@ try {
   ]);
   const duration = Number(JSON.parse(probeOutput).format.duration);
 
-  if (!Number.isFinite(duration) || duration < 4.5 || duration > 5.5) {
-    throw new Error(`Smoke clip duration was ${duration}, expected about 5 seconds.`);
+  if (!Number.isFinite(duration) || duration < 1.5 || duration > 2.5) {
+    throw new Error(`Smoke clip duration was ${duration}, expected about ${expectedDurationSeconds} seconds.`);
   }
 
   console.log(`Clip smoke test passed with output duration ${duration.toFixed(3)} seconds.`);

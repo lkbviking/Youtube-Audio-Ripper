@@ -8,6 +8,7 @@
 - Windows installer: NSIS
 - Download engine: yt-dlp executable
 - Media tools: ffmpeg and ffprobe executables
+- JavaScript challenge runtime: Deno executable
 - Persistence: local JSON config stored in the user's AppData directory
 
 This is a good fit for the project because Electron handles Windows packaging and future auto-updates well, while yt-dlp and ffmpeg solve the hard media problems that should not be reimplemented in the app.
@@ -117,6 +118,7 @@ Components:
 - `ytDlpService`
 - `ffmpegService`
 - `downloadJob`
+- bundled Deno runtime for yt-dlp YouTube challenges
 
 Responsibilities:
 
@@ -168,6 +170,7 @@ youtube-audio-ripper/
     yt-dlp.exe
     ffmpeg.exe
     ffprobe.exe
+    deno.exe
   dist/
 ```
 
@@ -193,7 +196,7 @@ The main process should execute a flow like this:
 
 1. Validate the YouTube URL.
 2. Validate that the output directory exists and is writable.
-3. Verify `yt-dlp.exe`, `ffmpeg.exe`, and `ffprobe.exe` are present.
+3. Verify `yt-dlp.exe`, `ffmpeg.exe`, `ffprobe.exe`, and `deno.exe` are present.
 4. Build yt-dlp arguments.
 5. Spawn yt-dlp as a child process.
 6. Parse progress output and forward normalized events to the renderer.
@@ -319,7 +322,7 @@ Why:
 First installer goal:
 
 - Install the Electron app
-- Include the bundled `yt-dlp.exe`, `ffmpeg.exe`, and `ffprobe.exe`
+- Include the bundled `yt-dlp.exe`, `ffmpeg.exe`, `ffprobe.exe`, and `deno.exe`
 - Create desktop and Start menu shortcuts
 
 ## Error Model
